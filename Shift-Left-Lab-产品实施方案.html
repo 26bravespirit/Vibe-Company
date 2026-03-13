@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shift-Left Lab · 产品实施方案 v2.0</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#050508;color:#d8d8e8;line-height:1.8;font-size:15px}
+
+/* Hero */
+.hero{background:linear-gradient(160deg,#0a0510 0%,#10082a 30%,#1a1040 50%,#081028 70%,#050a18 100%);padding:80px 40px 60px;text-align:center;border-bottom:3px solid;border-image:linear-gradient(90deg,#ef4444,#f59e0b,#3b82f6,#a855f7) 1}
+.hero h1{font-size:40px;font-weight:900;background:linear-gradient(135deg,#fff 0%,#c4b5fd 50%,#93c5fd 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px;letter-spacing:-1px}
+.hero .sub{font-size:17px;color:#8888bb;max-width:800px;margin:0 auto 24px}
+.hero .version{display:inline-block;background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.3);border-radius:20px;padding:4px 16px;font-size:12px;color:#c084fc;font-weight:700;letter-spacing:1px}
+
+/* Container */
+.container{max-width:1200px;margin:0 auto;padding:40px 24px}
+
+/* TOC */
+.toc{background:#0a0a18;border:1px solid #1e1e3a;border-radius:16px;padding:28px 32px;margin-bottom:36px}
+.toc h3{color:#fff;font-size:18px;margin-bottom:14px}
+.toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 32px}
+@media(max-width:768px){.toc-grid{grid-template-columns:1fr}}
+.toc a{color:#888;text-decoration:none;display:block;padding:5px 0;font-size:14px;transition:color .2s}
+.toc a:hover{color:#c084fc}
+.toc a .toc-num{color:#555;margin-right:6px}
+
+/* Section Divider */
+.section-divider{padding:48px 0 20px;margin-top:56px;border-top:2px solid #1a1a3a;text-align:center}
+.section-divider h2{font-size:26px;font-weight:800;color:#fff}
+.section-divider .sdesc{font-size:13px;color:#555;margin-top:4px}
+
+/* Cards */
+.card{background:#0c0c1a;border:1px solid #1e1e3a;border-radius:14px;padding:28px 30px;margin-bottom:22px;transition:border-color .2s}
+.card:hover{border-color:#a855f7}
+.card h2{font-size:20px;color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.card h3{font-size:16px;color:#c084fc;margin:20px 0 10px;padding-bottom:5px;border-bottom:1px solid #1a1a30}
+.card h4{font-size:14px;color:#e9d5ff;margin:14px 0 8px}
+.card p{margin-bottom:10px}
+
+/* Engine Cards with Color Coding */
+.engine-red{border-left:3px solid #ef4444}
+.engine-red:hover{border-color:#ef4444}
+.engine-red h3{color:#f87171}
+.engine-amber{border-left:3px solid #f59e0b}
+.engine-amber:hover{border-color:#f59e0b}
+.engine-amber h3{color:#fbbf24}
+.engine-blue{border-left:3px solid #3b82f6}
+.engine-blue:hover{border-color:#3b82f6}
+.engine-blue h3{color:#60a5fa}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px}
+th,td{padding:9px 13px;text-align:left;border-bottom:1px solid #1a1a30}
+th{color:#666;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+td{color:#bbb}
+
+/* Highlights */
+.hl{padding:13px 17px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px}
+.hl-r{background:rgba(248,113,113,.06);border-left:3px solid #f87171}
+.hl-g{background:rgba(52,211,153,.06);border-left:3px solid #34d399}
+.hl-a{background:rgba(251,191,36,.06);border-left:3px solid #fbbf24}
+.hl-b{background:rgba(96,165,250,.06);border-left:3px solid #60a5fa}
+.hl-p{background:rgba(168,85,247,.06);border-left:3px solid #a855f7}
+
+/* Grids */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media(max-width:860px){.grid2,.grid3,.grid4,.grid5{grid-template-columns:1fr}}
+
+/* Metrics */
+.metric{text-align:center;padding:18px 10px;background:#08081a;border-radius:10px;border:1px solid #1a1a30}
+.metric .num{font-size:26px;font-weight:800}
+.metric .label{font-size:10px;color:#666;margin-top:3px;line-height:1.4}
+.num-red{color:#f87171}.num-amber{color:#fbbf24}.num-green{color:#34d399}.num-purple{color:#c084fc}.num-blue{color:#60a5fa}.num-white{color:#fff}
+
+/* Tags */
+.tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;margin:1px 2px}
+.tag-red{background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.3)}
+.tag-amber{background:rgba(251,191,36,.15);color:#fbbf24;border:1px solid rgba(251,191,36,.3)}
+.tag-green{background:rgba(52,211,153,.15);color:#34d399;border:1px solid rgba(52,211,153,.3)}
+.tag-blue{background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.3)}
+.tag-purple{background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.3)}
+
+/* ASCII / Code */
+.ascii{font-family:'Courier New',monospace;font-size:11.5px;line-height:1.5;color:#a0a0d0;background:#08080f;border:1px solid #1e1e30;border-radius:12px;padding:22px;margin:14px 0;overflow-x:auto;white-space:pre}
+
+/* Flow */
+.flow-box{background:#08081a;border:1px solid #1e1e3a;border-radius:12px;padding:18px;margin:14px 0}
+.flow-step{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px dashed #1a1a30}
+.flow-step:last-child{border-bottom:none}
+.flow-num{width:30px;height:30px;border-radius:50%;background:rgba(168,85,247,.15);border:1px solid #a855f7;color:#c084fc;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.flow-num-red{background:rgba(239,68,68,.15);border-color:#ef4444;color:#f87171}
+.flow-num-amber{background:rgba(245,158,11,.15);border-color:#f59e0b;color:#fbbf24}
+.flow-num-blue{background:rgba(59,130,246,.15);border-color:#3b82f6;color:#60a5fa}
+.flow-num-green{background:rgba(52,211,153,.15);border-color:#34d399;color:#34d399}
+.flow-content{flex:1}
+.flow-content .flow-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
+.flow-content .flow-desc{font-size:12px;color:#999}
+
+/* Verdict */
+.verdict-box{background:rgba(168,85,247,.06);border:2px solid rgba(168,85,247,.2);border-radius:14px;padding:24px;margin:20px 0}
+.verdict-box .verdict-title{font-size:17px;font-weight:800;color:#c084fc;margin-bottom:10px}
+
+/* Timeline */
+.timeline-bar{display:flex;align-items:stretch;gap:0;margin:20px 0;border-radius:10px;overflow:hidden}
+.tl-phase{flex:1;padding:16px 14px;text-align:center;position:relative}
+.tl-phase .tl-name{font-size:13px;font-weight:800;margin-bottom:4px}
+.tl-phase .tl-weeks{font-size:11px;opacity:.7}
+.tl-phase .tl-desc{font-size:10px;opacity:.5;margin-top:4px}
+.tl-p1{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+.tl-p2{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.25)}
+.tl-p3{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.25)}
+.tl-p4{background:rgba(168,85,247,.12);color:#c084fc;border:1px solid rgba(168,85,247,.25)}
+
+/* Paper Cards */
+.paper-card{background:#08081a;border:1px solid #1a1a30;border-radius:10px;padding:14px;margin:6px 0}
+.paper-card .paper-title{color:#e9d5ff;font-weight:700;font-size:13px;margin-bottom:3px}
+.paper-card .paper-meta{color:#555;font-size:11px;margin-bottom:4px}
+.paper-card .paper-finding{color:#aaa;font-size:12px}
+.paper-card .paper-num{color:#fbbf24;font-weight:700}
+
+/* Footer */
+.footer{text-align:center;padding:40px;color:#444;font-size:12px;border-top:1px solid #1a1a30;margin-top:48px}
+
+/* Persona Pyramid */
+.pyramid{text-align:center;margin:16px 0}
+.pyramid-level{display:inline-block;padding:10px 0;border-bottom:2px solid #1a1a30;margin-bottom:8px}
+.pyramid-l3{width:180px;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:8px 8px 0 0}
+.pyramid-l2{width:320px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2)}
+.pyramid-l1{width:460px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:0 0 8px 8px}
+.pyramid-label{font-size:12px;font-weight:700}
+.pyramid-desc{font-size:10px;color:#888}
+@media(max-width:520px){.pyramid-l1{width:100%}.pyramid-l2{width:85%}.pyramid-l3{width:60%}}
+
+/* Competitor Grid */
+.comp-mini{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;margin:2px;border:1px solid #1e1e3a;color:#aaa}
+</style>
+</head>
+<body>
+
+<!-- ====== HERO ====== -->
+<div class="hero">
+  <div class="version">v2.0 · COMPREHENSIVE IMPLEMENTATION PLAN</div>
+  <h1 style="margin-top:16px">Shift-Left Lab 产品实施方案</h1>
+  <p class="sub">AI 驱动的研发管线前移质量验证平台 — 基于前期全部研究成果的综合实施蓝图</p>
+  <p style="font-size:13px;color:#555;margin-top:8px">综合 9 份竞品报告 · 4 份专题研究 · 18 项偏差治理 · 12 篇画像论文 · 25+ 篇收敛性论文</p>
+</div>
+
+<div class="container">
+
+<!-- ====== CORE METRICS ====== -->
+<div class="grid5" style="margin-bottom:32px">
+  <div class="metric"><div class="num num-red">100x</div><div class="label">上线后缺陷修复<br>vs 需求阶段成本比</div></div>
+  <div class="metric"><div class="num num-amber">3</div><div class="label">核心引擎<br>PRD·视觉·交互</div></div>
+  <div class="metric"><div class="num num-green">18</div><div class="label">偏差治理方案<br>6 项 × 3 引擎</div></div>
+  <div class="metric"><div class="num num-blue">0</div><div class="label">GPU 需求<br>纯 API 架构</div></div>
+  <div class="metric"><div class="num num-purple">~38</div><div class="label">周交付周期<br>4 阶段路线图</div></div>
+</div>
+
+<!-- ====== TOC ====== -->
+<div class="toc">
+  <h3>目录</h3>
+  <div class="toc-grid">
+    <div>
+      <a href="#s1"><span class="toc-num">一</span>产品战略定位</a>
+      <a href="#s2"><span class="toc-num">二</span>系统架构</a>
+      <a href="#s3"><span class="toc-num">三</span>三大核心引擎</a>
+      <a href="#s4"><span class="toc-num">四</span>输入网关层</a>
+      <a href="#s5"><span class="toc-num">五</span>分层画像系统</a>
+      <a href="#s6"><span class="toc-num">六</span>偏差治理体系</a>
+    </div>
+    <div>
+      <a href="#s7"><span class="toc-num">七</span>收敛性与样本量策略</a>
+      <a href="#s8"><span class="toc-num">八</span>实施路线图</a>
+      <a href="#s9"><span class="toc-num">九</span>成本模型</a>
+      <a href="#s10"><span class="toc-num">十</span>风险管理</a>
+      <a href="#s11"><span class="toc-num">十一</span>成功指标</a>
+      <a href="#s12"><span class="toc-num">十二</span>核心学术依据</a>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SECTION 1: STRATEGY ====== -->
+<div class="section-divider" id="s1" style="margin-top:0;border-top:none;padding-top:0">
+  <h2>一 · 产品战略定位</h2>
+</div>
+
+<div class="card">
+  <h2>1.1 核心价值主张</h2>
+  <div class="hl hl-p"><strong>一句话定位：</strong>让每一份 PRD 在进入开发前，都经过 AI 虚拟用户的"试用"。</div>
+  <p>IBM 经典研究：缺陷修复成本 — 需求阶段 1x → 开发阶段 6.5x → 测试阶段 15x → 上线后 100x。Shift-Left Lab 在设计阶段引入 AI 模拟的虚拟用户，对 PRD、设计稿、可交互原型进行自动化体验测试，在一行代码都没写之前就发现问题。</p>
+
+  <h3>产品哲学</h3>
+  <div class="hl hl-a"><strong>AI 是假设生成器，不是最终判定者。</strong>不是替代真人测试，而是在开发早期发现 60-80% 的可发现问题，将真人精力集中在 AI 无法覆盖的维度。</div>
+</div>
+
+<div class="card">
+  <h2>1.2 竞争格局</h2>
+  <p>基于对 9 家竞品的深度研究：</p>
+  <table>
+    <tr><th>竞品类别</th><th>代表</th><th>关系</th></tr>
+    <tr><td>PRD 自动生成</td><td><span class="comp-mini">ChatPRD</span><span class="comp-mini">Leanware</span></td><td>上游互补（它们生成，我们验证）</td></tr>
+    <tr><td>视觉注意力预测</td><td><span class="comp-mini">Attention Insight</span><span class="comp-mini">Brainsight</span><span class="comp-mini">Feng-GUI</span></td><td>技术互补（CNN 可作为互补通道）</td></tr>
+    <tr><td>合成用户模拟</td><td><span class="comp-mini">UXAgent</span><span class="comp-mini">Velocity</span><span class="comp-mini">Blok</span></td><td>直接竞争（但三引擎+偏差治理差异化）</td></tr>
+    <tr><td>原型生成</td><td><span class="comp-mini">Figma Make</span></td><td>上游互补（Figma 生成，我们验证）</td></tr>
+  </table>
+  <div class="hl hl-g"><strong>核心差异化：</strong>目前唯一将 PRD 审查、视觉认知测试、交互仿真整合为统一管线，并内建系统性偏差治理的产品。</div>
+</div>
+
+<!-- ====== SECTION 2: ARCHITECTURE ====== -->
+<div class="section-divider" id="s2"><h2>二 · 系统架构</h2></div>
+
+<div class="card">
+  <h2>2.1 总体架构图</h2>
+  <div class="ascii">
+┌──────────────────────────────────────────────────────────────┐
+│                      展示层 Presentation                       │
+│   Web Dashboard · 报告引擎 · 协作批注 · 历史对比                 │
+├──────────────────────────────────────────────────────────────┤
+│                      应用层 Application                        │
+│                                                               │
+│   ┌────────────────────────────────────────────────────┐     │
+│   │              输入网关层 Input Gateway                  │     │
+│   │  Format Router · Persona Resolver · Sanitizer       │     │
+│   │  Quality Score: 0-100 (GREEN/YELLOW/RED)            │     │
+│   └───────────────────────┬────────────────────────────┘     │
+│                            │                                   │
+│   ┌──────────┐  ┌─────────┴────────┐  ┌───────────────┐     │
+│   │PRD 剧本   │  │  视觉认知          │  │ 原型交互仿真   │     │
+│   │引擎 🔴    │  │  引擎 🟡           │  │ 引擎 🔵       │     │
+│   │对抗角色   │  │  认知退化模拟      │  │ 认知摩擦注入   │     │
+│   │负面提示   │  │  双通道互补        │  │ 行为人性化     │     │
+│   └────┬─────┘  └────────┬─────────┘  └──────┬────────┘     │
+│        └─────────────────┼───────────────────┘               │
+│                           │                                    │
+│   ┌──────────────────────┴───────────────────────────┐       │
+│   │        偏差治理层 Bias Governance (18 项)           │       │
+│   │  置信度校准 · 方差监控 · 盲区声明 · 人机校准闭环     │       │
+│   └──────────────────────┬───────────────────────────┘       │
+│   ┌──────────────────────┴───────────────────────────┐       │
+│   │     分层画像系统 Persona Pyramid (L1+L2+L3)        │       │
+│   └──────────────────────────────────────────────────┘       │
+├──────────────────────────────────────────────────────────────┤
+│                      能力层 Claude AI                          │
+│   Messages API · Vision API · Computer Use · Agent SDK        │
+│   ⚡ 零 GPU — 推理全部 Anthropic 云端                          │
+├──────────────────────────────────────────────────────────────┤
+│                      基础层 Infrastructure                     │
+│   CPU Server · PostgreSQL · Redis · File Storage · Docker     │
+└──────────────────────────────────────────────────────────────┘</div>
+</div>
+
+<div class="card">
+  <h2>2.2 技术栈与部署</h2>
+  <div class="grid2">
+    <div>
+      <h3>技术栈</h3>
+      <table>
+        <tr><td style="color:#fff">前端</td><td>React + TypeScript + Ant Design</td></tr>
+        <tr><td style="color:#fff">后端</td><td>Python + FastAPI</td></tr>
+        <tr><td style="color:#fff">Agent 框架</td><td>Claude Agent SDK</td></tr>
+        <tr><td style="color:#fff">AI 模型</td><td>Claude Opus 4.6 / Sonnet 4.6</td></tr>
+        <tr><td style="color:#fff">队列</td><td>Celery + Redis</td></tr>
+        <tr><td style="color:#fff">数据库</td><td>PostgreSQL</td></tr>
+        <tr><td style="color:#fff">部署</td><td>Docker Compose (零 GPU)</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>服务器需求</h3>
+      <table>
+        <tr><td style="color:#fff">CPU</td><td>4-8 核</td></tr>
+        <tr><td style="color:#fff">内存</td><td>16-32 GB</td></tr>
+        <tr><td style="color:#fff">存储</td><td>200 GB SSD</td></tr>
+        <tr><td style="color:#fff">GPU</td><td><span class="tag tag-green">不需要</span></td></tr>
+        <tr><td style="color:#fff">网络</td><td>HTTPS → api.anthropic.com</td></tr>
+        <tr><td style="color:#fff">成本</td><td>¥2K-5K/月（无 GPU）</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SECTION 3: THREE ENGINES ====== -->
+<div class="section-divider" id="s3"><h2>三 · 三大核心引擎</h2></div>
+
+<div class="card engine-red">
+  <h2>🔴 引擎一：PRD 剧本引擎</h2>
+  <p style="font-size:13px;color:#888">技术实现：Anthropic Messages API（文本推理）· 成本：~$2.57/次</p>
+
+  <h3>处理流水线</h3>
+  <div class="flow-box">
+    <div class="flow-step"><div class="flow-num flow-num-red">1</div><div class="flow-content"><div class="flow-title">文档解析</div><div class="flow-desc">Claude Sonnet 提取功能列表、用户故事、业务规则、验收标准</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-red">2</div><div class="flow-content"><div class="flow-title">Schema 验证</div><div class="flow-desc">ISO 29148 标准检查 → 必填/推荐字段 → 质量分</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-red">3</div><div class="flow-content"><div class="flow-title">领域知识注入</div><div class="flow-desc">行业检测 → RAG 检索法规 + 团队历史模式</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-red">4</div><div class="flow-content"><div class="flow-title">对抗性审查</div><div class="flow-desc">破坏者(40%) / 天真用户(35%) / 辩护者(25%) 三角色辩论</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-red">5</div><div class="flow-content"><div class="flow-title">多专家并行</div><div class="flow-desc">UX + 业务 + 技术 + 无障碍 四专家独立审查</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-red">6</div><div class="flow-content"><div class="flow-title">缺陷聚合</div><div class="flow-desc">P0-P3 分级 + 改进建议 + 功能覆盖图</div></div></div>
+  </div>
+
+  <h3>偏差治理 (6 项)</h3>
+  <table>
+    <tr><th>类型</th><th>方案</th><th>学术基础</th></tr>
+    <tr><td><span class="tag tag-red">乐观①</span></td><td>对抗性角色系统</td><td>Multi-Agent Debate (Du et al. 2023)</td></tr>
+    <tr><td><span class="tag tag-red">乐观②</span></td><td>负面提示工程</td><td>禁止短语 + 预设"未通过"基线</td></tr>
+    <tr><td><span class="tag tag-red">乐观③</span></td><td>历史校准基线</td><td>缺陷密度追踪 + 偏移系数修正</td></tr>
+    <tr><td><span class="tag tag-purple">工具④</span></td><td>能力边界声明</td><td>NIST SP.1270 测量偏差框架</td></tr>
+    <tr><td><span class="tag tag-purple">工具⑤</span></td><td>领域知识 RAG 注入</td><td>弥补 LLM 领域盲区</td></tr>
+    <tr><td><span class="tag tag-purple">工具⑥</span></td><td>文化偏差补偿器</td><td>中国产品语境适配</td></tr>
+  </table>
+</div>
+
+<div class="card engine-amber">
+  <h2>🟡 引擎二：视觉认知引擎</h2>
+  <p style="font-size:13px;color:#888">技术实现：Anthropic Vision API（多模态图片理解）· 成本：~$1/次</p>
+
+  <h3>处理流水线</h3>
+  <div class="flow-box">
+    <div class="flow-step"><div class="flow-num flow-num-amber">1</div><div class="flow-content"><div class="flow-title">图片质量检查</div><div class="flow-desc">分辨率 / 清晰度 / OCR 可读性</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-amber">2</div><div class="flow-content"><div class="flow-title">上下文绑定</div><div class="flow-desc">图片 ↔ PRD 功能映射（3 种回退模式）</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-amber">3</div><div class="flow-content"><div class="flow-title">视口裁剪 + 认知退化</div><div class="flow-desc">首屏变体 + 画像驱动的视觉退化（模糊/色盲/遮蔽）</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-amber">4</div><div class="flow-content"><div class="flow-title">逆向任务 + 多画像评估</div><div class="flow-desc">自动生成可发现性/理解度任务 + 差异化评分 + 方差分析</div></div></div>
+  </div>
+
+  <h3>偏差治理 (6 项)</h3>
+  <table>
+    <tr><th>类型</th><th>方案</th><th>核心技术</th></tr>
+    <tr><td><span class="tag tag-red">乐观①</span></td><td>认知退化模拟器</td><td>图像预处理管线（周边模糊/小字遮蔽/色盲模拟）</td></tr>
+    <tr><td><span class="tag tag-red">乐观②</span></td><td>逆向任务测试</td><td>"能否用它完成任务" 替代 "设计好不好"</td></tr>
+    <tr><td><span class="tag tag-red">乐观③</span></td><td>多画像差异化评分</td><td>方差 < 阈值 → 伪收敛警告</td></tr>
+    <tr><td><span class="tag tag-purple">工具④</span></td><td>双通道互补</td><td>CNN 注意力 + LLM 语义交叉验证</td></tr>
+    <tr><td><span class="tag tag-purple">工具⑤</span></td><td>非视觉排除</td><td>触觉/延迟/疲劳标记"未覆盖"</td></tr>
+    <tr><td><span class="tag tag-purple">工具⑥</span></td><td>人类基线对齐</td><td>真人眼动数据校准集</td></tr>
+  </table>
+</div>
+
+<div class="card engine-blue">
+  <h2>🔵 引擎三：原型交互仿真引擎</h2>
+  <p style="font-size:13px;color:#888">技术实现：Claude Computer Use（截图+浏览器操控）· 成本：~$3-6/次</p>
+
+  <h3>处理流水线</h3>
+  <div class="flow-box">
+    <div class="flow-step"><div class="flow-num flow-num-blue">1</div><div class="flow-content"><div class="flow-title">URL 预检查</div><div class="flow-desc">可访问性/SSL/加载时间 + BFS 站点探测 (≤20 页)</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-blue">2</div><div class="flow-content"><div class="flow-title">测试脚本编译 + 环境配置</div><div class="flow-desc">NL → 结构化脚本 + 视口/网络节流/中断注入</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-blue">3</div><div class="flow-content"><div class="flow-title">Claude 自主交互循环</div><div class="flow-desc">截图→理解→决策→执行→内心独白→卡点检测→循环</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-blue">4</div><div class="flow-content"><div class="flow-title">体验报告生成</div><div class="flow-desc">操作回放 + 路径图 + 卡点清单 + 可用性评分 + 任务完成率</div></div></div>
+  </div>
+
+  <h3>偏差治理 (6 项)</h3>
+  <table>
+    <tr><th>类型</th><th>方案</th><th>核心技术</th></tr>
+    <tr><td><span class="tag tag-red">乐观①</span></td><td>认知摩擦注入器</td><td>犹豫P=0.3 / 误触P=0.05 / 分心P=0.15 / 放弃P=0.08</td></tr>
+    <tr><td><span class="tag tag-red">乐观②</span></td><td>多策略路径探索</td><td>最优/探索/困惑/搜索优先 4 路径并行</td></tr>
+    <tr><td><span class="tag tag-red">乐观③</span></td><td>放弃率预测器</td><td>实时 frustration 积分 → 触发放弃</td></tr>
+    <tr><td><span class="tag tag-purple">工具④</span></td><td>环境真实感增强</td><td>网络节流 / 视口随机化 / 中断注入</td></tr>
+    <tr><td><span class="tag tag-purple">工具⑤</span></td><td>行为人性化引擎</td><td>Fitts' Law + Bézier 曲线 + 高斯抖动</td></tr>
+    <tr><td><span class="tag tag-purple">工具⑥</span></td><td>工具偏差透明报告</td><td>"本次未覆盖维度"声明</td></tr>
+  </table>
+</div>
+
+<!-- ====== SECTION 4: INPUT GATEWAY ====== -->
+<div class="section-divider" id="s4"><h2>四 · 输入网关层</h2></div>
+
+<div class="card">
+  <h2>4.1 五层网关架构</h2>
+  <div class="flow-box">
+    <div class="flow-step"><div class="flow-num flow-num-green">①</div><div class="flow-content"><div class="flow-title">共享预处理层</div><div class="flow-desc">Format Detector & Router（自动分类 PRD/图片/URL → 路由） · Persona Registry Resolver（统一画像 → 三引擎特化参数） · Security & Sanitizer（PII 脱敏 + 文件限制）</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-red">②</div><div class="flow-content"><div class="flow-title">PRD Gateway (6 步)</div><div class="flow-desc">Document Parser → Schema Validator (ISO 29148) → Domain Knowledge Injector → Bias Prevention Injector</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-amber">③</div><div class="flow-content"><div class="flow-title">Visual Gateway (5 步)</div><div class="flow-desc">Image Quality Inspector → Context Binder → Viewport Cropper → Cognitive Degradation Pre-Processor → Inverse Task Generator</div></div></div>
+    <div class="flow-step"><div class="flow-num flow-num-blue">④</div><div class="flow-content"><div class="flow-title">Interaction Gateway (4 步)</div><div class="flow-desc">URL Pre-Inspector (BFS ≤20页) → Test Script Compiler → Environment Configurator → Friction Config Generator</div></div></div>
+    <div class="flow-step"><div class="flow-num">⑤</div><div class="flow-content"><div class="flow-title">统一质量评分</div><div class="flow-desc"><span class="tag tag-green">GREEN ≥70</span> 置信度高 · <span class="tag tag-amber">YELLOW 40-69</span> 需谨慎 · <span class="tag tag-red">RED &lt;40</span> 建议补充 → 质量分作为置信度乘数</div></div></div>
+  </div>
+</div>
+
+<!-- ====== SECTION 5: PERSONA SYSTEM ====== -->
+<div class="section-divider" id="s5"><h2>五 · 分层画像系统</h2></div>
+
+<div class="card">
+  <h2>5.1 三层画像金字塔</h2>
+
+  <div class="pyramid">
+    <div class="pyramid-level pyramid-l3"><div class="pyramid-label" style="color:#f87171">L3 锚点画像 · 5-10 人</div><div class="pyramid-desc">数字孪生 · 2h AI 访谈 · 85% 准确率 · 校准基线</div></div><br>
+    <div class="pyramid-level pyramid-l2"><div class="pyramid-label" style="color:#fbbf24">L2 深层画像 · 50-200 人</div><div class="pyramid-desc">DeepPersona 级 · 数百属性 · ~1MB 叙事 · 主测试回路</div></div><br>
+    <div class="pyramid-level pyramid-l1"><div class="pyramid-label" style="color:#34d399">L1 广域画像 · 1,000-10,000 人</div><div class="pyramid-desc">Nemotron PGM / MoP · 统计对齐 · ~500 词 · 覆盖率扫描</div></div>
+  </div>
+
+  <h3>跨层联动</h3>
+  <div class="grid3">
+    <div class="hl hl-r" style="margin:0"><strong>向上校准：</strong>L3 真人数据 → 计算 L2/L1 系统偏差 → 校准系数</div>
+    <div class="hl hl-b" style="margin:0"><strong>向下发现：</strong>L1 异常信号 → L2 验证 → L3 仲裁</div>
+    <div class="hl hl-a" style="margin:0"><strong>横向一致性：</strong>三层分歧超阈值 → 置信度降级</div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>5.2 画像构建方法论</h2>
+  <table>
+    <tr><th>方法</th><th>来源</th><th>核心技术</th><th>适用层</th><th>阶段</th></tr>
+    <tr><td style="color:#fff">Nemotron PGM</td><td>NVIDIA 2025</td><td>概率图模型 + Census 采样</td><td><span class="tag tag-green">L1</span></td><td>冷启动</td></tr>
+    <tr><td style="color:#fff">DeepPersona</td><td>NeurIPS 2025</td><td>属性分类体系 + 条件递进</td><td><span class="tag tag-amber">L2</span></td><td>全阶段</td></tr>
+    <tr><td style="color:#fff">Population-Aligned</td><td>MS Research 2025</td><td>重要性采样 + 最优传输</td><td><span class="tag tag-green">L1</span><span class="tag tag-amber">L2</span></td><td>数据积累</td></tr>
+    <tr><td style="color:#fff">MoP 混合模型</td><td>ACL 2025</td><td>层次混合权重（免微调）</td><td><span class="tag tag-green">L1</span></td><td>数据积累</td></tr>
+    <tr><td style="color:#fff">数字孪生访谈</td><td>Stanford/Google 2024</td><td>2h AI 访谈 → 85% GSS 准确率</td><td><span class="tag tag-red">L3</span></td><td>成熟运营</td></tr>
+    <tr><td style="color:#fff">PersonaCite</td><td>arXiv 2026</td><td>VoC RAG + 证据锚定</td><td><span class="tag tag-amber">L2</span><span class="tag tag-red">L3</span></td><td>成熟运营</td></tr>
+  </table>
+</div>
+
+<!-- ====== SECTION 6: BIAS GOVERNANCE ====== -->
+<div class="section-divider" id="s6"><h2>六 · 偏差治理体系</h2></div>
+
+<div class="card">
+  <h2>6.1 两类偏差本质</h2>
+  <div class="grid2">
+    <div class="hl hl-r" style="margin:0">
+      <strong style="color:#f87171">乐观偏差 Optimism Bias</strong><br>
+      LLM 系统性"说好话"。根因：RLHF 训练将"谄媚"烘焙进权重。<br>
+      证据：98% 错误承认率（Anthropic ICLR 2024）；29-41% 正面偏向（Sweetser）<br>
+      <strong>方向：单向正偏移 · 全维度 · 可修复</strong>
+    </div>
+    <div class="hl hl-p" style="margin:0">
+      <strong style="color:#c084fc">工具偏差 Tooling Bias</strong><br>
+      AI 某些维度"看不见"。根因：能力架构局限，无具身认知。<br>
+      证据：画像效力 <10%（Hu et al. ACL 2024）；±5 分 UI 评估偏差<br>
+      <strong>方向：非方向性 · 特定维度缺失 · 部分可补偿</strong>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>6.2 18 项治理方案全景</h2>
+  <table>
+    <tr><th>引擎</th><th><span class="tag tag-red">乐观偏差 ×3</span></th><th><span class="tag tag-purple">工具偏差 ×3</span></th></tr>
+    <tr>
+      <td style="color:#f87171;font-weight:700">PRD 剧本</td>
+      <td>① 对抗性角色系统<br>② 负面提示工程<br>③ 历史校准基线</td>
+      <td>④ 能力边界声明<br>⑤ 领域知识 RAG<br>⑥ 文化偏差补偿</td>
+    </tr>
+    <tr>
+      <td style="color:#fbbf24;font-weight:700">视觉认知</td>
+      <td>① 认知退化模拟器<br>② 逆向任务测试<br>③ 多画像差异化评分</td>
+      <td>④ 双通道互补<br>⑤ 非视觉排除<br>⑥ 人类基线对齐</td>
+    </tr>
+    <tr>
+      <td style="color:#60a5fa;font-weight:700">原型交互</td>
+      <td>① 认知摩擦注入器<br>② 多策略路径探索<br>③ 放弃率预测器</td>
+      <td>④ 环境真实感增强<br>⑤ 行为人性化引擎<br>⑥ 工具偏差透明报告</td>
+    </tr>
+  </table>
+
+  <h3>跨引擎置信度聚合</h3>
+  <div class="hl hl-p"><strong>最终置信度 = 输入质量分 × 偏差治理系数 × 画像保真度系数</strong><br>低于阈值时自动附带警示和改进建议。</div>
+</div>
+
+<!-- ====== SECTION 7: CONVERGENCE ====== -->
+<div class="section-divider" id="s7"><h2>七 · 收敛性与样本量策略</h2></div>
+
+<div class="card">
+  <h2>7.1 核心发现</h2>
+  <div class="hl hl-r"><strong>会收敛，但收敛方向可能是错的。</strong>AI 画像群体随数量增加方差减小（伪收敛），但偏差不消失。收敛方向是训练数据的模态峰值，而非真实人群分布。</div>
+
+  <h3>产品策略推论</h3>
+  <div class="grid4">
+    <div class="metric"><div class="num num-red" style="font-size:18px">质量 > 数量</div><div class="label">5 个对抗画像<br>&gt; 50 个相似画像</div></div>
+    <div class="metric"><div class="num num-amber" style="font-size:18px">对抗 > 堆叠</div><div class="label">多 Agent 辩论<br>&gt; 更多合成用户</div></div>
+    <div class="metric"><div class="num num-green" style="font-size:18px">真人 > 合成</div><div class="label">5 真人校准<br>≈ 1000 合成用户</div></div>
+    <div class="metric"><div class="num num-blue" style="font-size:18px">方差 > 均值</div><div class="label">关注结论分歧度<br>而非平均评分</div></div>
+  </div>
+</div>
+
+<!-- ====== SECTION 8: ROADMAP ====== -->
+<div class="section-divider" id="s8"><h2>八 · 实施路线图</h2></div>
+
+<div class="card">
+  <h2>8.1 四阶段时间线</h2>
+  <div class="timeline-bar">
+    <div class="tl-phase tl-p1">
+      <div class="tl-name">Phase 1</div>
+      <div class="tl-weeks">6-8 周</div>
+      <div class="tl-desc">MVP 验证<br>PRD 引擎 · 单 Agent</div>
+    </div>
+    <div class="tl-phase tl-p2">
+      <div class="tl-name">Phase 2</div>
+      <div class="tl-weeks">8-10 周</div>
+      <div class="tl-desc">多引擎 + 偏差治理<br>视觉引擎 · 对抗角色</div>
+    </div>
+    <div class="tl-phase tl-p3">
+      <div class="tl-name">Phase 3</div>
+      <div class="tl-weeks">8-10 周</div>
+      <div class="tl-desc">交互仿真 + 画像<br>Computer Use · 分层画像</div>
+    </div>
+    <div class="tl-phase tl-p4">
+      <div class="tl-name">Phase 4</div>
+      <div class="tl-weeks">8-10 周</div>
+      <div class="tl-desc">校准 + 企业级<br>真人闭环 · GA 发布</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>8.2 各阶段核心交付物</h2>
+
+  <h3 style="color:#f87171">Phase 1 — MVP 验证</h3>
+  <table>
+    <tr><td style="color:#fff">API 封装层</td><td>Messages API + Vision + Prompt Caching</td></tr>
+    <tr><td style="color:#fff">PRD 文档解析器</td><td>Markdown / DOCX / PDF</td></tr>
+    <tr><td style="color:#fff">基础画像库</td><td>8 个内置模板 + System Prompt 编译器</td></tr>
+    <tr><td style="color:#fff">剧本推演</td><td>Claude Opus 单 Agent 推演</td></tr>
+    <tr><td style="color:#fff">基础 Web 界面</td><td>上传 → 配置 → 运行 → 查看报告</td></tr>
+  </table>
+
+  <h3 style="color:#fbbf24">Phase 2 — 多引擎 + 偏差治理</h3>
+  <table>
+    <tr><td style="color:#fff">视觉认知引擎</td><td>Vision API + 认知路径 + 热力图</td></tr>
+    <tr><td style="color:#fff">多 Agent 编排</td><td>对抗性角色系统 (3 角色辩论)</td></tr>
+    <tr><td style="color:#fff">完整 PRD Gateway</td><td>Schema Validator + Domain RAG</td></tr>
+    <tr><td style="color:#fff">偏差治理基础</td><td>负面提示 + 边界声明 + 方差监控</td></tr>
+  </table>
+
+  <h3 style="color:#60a5fa">Phase 3 — 交互仿真 + 画像</h3>
+  <table>
+    <tr><td style="color:#fff">交互仿真引擎</td><td>Computer Use + 自主交互循环</td></tr>
+    <tr><td style="color:#fff">认知摩擦注入</td><td>犹豫/误触/分心/迷失/放弃模拟</td></tr>
+    <tr><td style="color:#fff">分层画像 L1+L2</td><td>Nemotron PGM 广域 + DeepPersona 深层</td></tr>
+    <tr><td style="color:#fff">操作回放系统</td><td>截图序列 + 内心独白 + 卡点标注</td></tr>
+  </table>
+
+  <h3 style="color:#c084fc">Phase 4 — 校准 + 企业级</h3>
+  <table>
+    <tr><td style="color:#fff">L3 锚点画像</td><td>AI 访谈 → 数字孪生 → 校准基线</td></tr>
+    <tr><td style="color:#fff">收敛检测器</td><td>伪收敛警告 + 信息饱和标记</td></tr>
+    <tr><td style="color:#fff">三引擎联合报告</td><td>PRD + 设计稿 + 原型 → 综合报告</td></tr>
+    <tr><td style="color:#fff">企业级能力</td><td>协作 + 权限 + 监控 + 成本控制 + Jira</td></tr>
+  </table>
+</div>
+
+<!-- ====== SECTION 9: COST ====== -->
+<div class="section-divider" id="s9"><h2>九 · 成本模型</h2></div>
+
+<div class="card">
+  <h2>9.1 单次测试成本</h2>
+  <div class="grid4">
+    <div class="metric"><div class="num num-red">$2.57</div><div class="label">PRD 剧本测试<br>1 PRD × 3 画像 × 3 专家</div></div>
+    <div class="metric"><div class="num num-amber">$1.00</div><div class="label">视觉认知测试<br>1 设计稿 × 3 画像</div></div>
+    <div class="metric"><div class="num num-blue">$3-6</div><div class="label">原型交互测试<br>1 原型 × 1 画像 × 3 任务</div></div>
+    <div class="metric"><div class="num num-purple">$8-12</div><div class="label">三引擎联合测试<br>完整配置</div></div>
+  </div>
+
+  <h3>成本优化策略</h3>
+  <table>
+    <tr><th>策略</th><th>说明</th><th>节省</th></tr>
+    <tr><td style="color:#fff">模型分级</td><td>简单任务 Sonnet，复杂推理 Opus</td><td><span class="tag tag-green">40-60%</span></td></tr>
+    <tr><td style="color:#fff">Prompt Caching</td><td>画像 System Prompt 跨调用复用</td><td><span class="tag tag-green">20-30%</span></td></tr>
+    <tr><td style="color:#fff">Batch API</td><td>非实时任务 50% 折扣</td><td><span class="tag tag-green">50%</span></td></tr>
+    <tr><td style="color:#fff">增量测试</td><td>只重测变更部分</td><td><span class="tag tag-amber">视情况</span></td></tr>
+  </table>
+</div>
+
+<!-- ====== SECTION 10: RISK ====== -->
+<div class="section-divider" id="s10"><h2>十 · 风险管理</h2></div>
+
+<div class="card">
+  <h2>10.1 风险矩阵</h2>
+  <table>
+    <tr><th>风险</th><th>概率</th><th>影响</th><th>应对策略</th></tr>
+    <tr><td style="color:#fff">API 中断</td><td><span class="tag tag-green">低</span></td><td><span class="tag tag-red">高</span></td><td>优雅降级 + 模型切换抽象层</td></tr>
+    <tr><td style="color:#fff">评估准确性不足</td><td><span class="tag tag-amber">中</span></td><td><span class="tag tag-red">高</span></td><td>18 项偏差治理 + 置信度标签 + 人工确认</td></tr>
+    <tr><td style="color:#fff">用户不信任</td><td><span class="tag tag-red">高</span></td><td><span class="tag tag-red">高</span></td><td>展示推演过程 + 置信度 + 历史准确率统计</td></tr>
+    <tr><td style="color:#fff">成本超预期</td><td><span class="tag tag-amber">中</span></td><td><span class="tag tag-amber">中</span></td><td>用量监控 + 预算告警 + 4 项成本优化</td></tr>
+    <tr><td style="color:#fff">数据安全</td><td><span class="tag tag-green">低</span></td><td><span class="tag tag-amber">中</span></td><td>Anthropic 不训练 API 数据 + 可选脱敏</td></tr>
+    <tr><td style="color:#fff">竞品追赶</td><td><span class="tag tag-amber">中</span></td><td><span class="tag tag-amber">中</span></td><td>三引擎统一管线 + 偏差治理深度是壁垒</td></tr>
+  </table>
+</div>
+
+<!-- ====== SECTION 11: SUCCESS METRICS ====== -->
+<div class="section-divider" id="s11"><h2>十一 · 成功指标</h2></div>
+
+<div class="card">
+  <h2>11.1 分阶段目标</h2>
+  <table>
+    <tr><th>指标</th><th>定义</th><th>Phase 1</th><th>Phase 4 (GA)</th></tr>
+    <tr><td style="color:#fff">缺陷发现率</td><td>AI 发现中确认为真实问题的比例</td><td>≥ 60%</td><td><strong style="color:#34d399">≥ 70%</strong></td></tr>
+    <tr><td style="color:#fff">缺陷覆盖率</td><td>后续问题中 AI 提前识别的比例</td><td>≥ 30%</td><td><strong style="color:#34d399">≥ 50%</strong></td></tr>
+    <tr><td style="color:#fff">单次耗时</td><td>端到端时间（PRD）</td><td>≤ 15min</td><td><strong style="color:#34d399">≤ 10min</strong></td></tr>
+    <tr><td style="color:#fff">单次成本</td><td>API 费用（PRD）</td><td>≤ $5</td><td><strong style="color:#34d399">≤ $3</strong></td></tr>
+    <tr><td style="color:#fff">用户采纳率</td><td>评审前使用的比例</td><td>≥ 40%</td><td><strong style="color:#34d399">≥ 80%</strong></td></tr>
+    <tr><td style="color:#fff">返工减少率</td><td>开发阶段设计变更减少比例</td><td>≥ 15%</td><td><strong style="color:#34d399">≥ 30%</strong></td></tr>
+  </table>
+</div>
+
+<!-- ====== SECTION 12: REFERENCES ====== -->
+<div class="section-divider" id="s12"><h2>十二 · 核心学术依据</h2></div>
+
+<div class="card">
+  <h2>12.1 偏差治理</h2>
+  <div class="paper-card"><div class="paper-title">① Towards Understanding Sycophancy in Language Models</div><div class="paper-meta">Sharma et al. · Anthropic · ICLR 2024</div><div class="paper-finding">谄媚根源 · <span class="paper-num">98%</span> 错误承认率 · <span class="paper-num">25-39%</span> 偏好污染</div></div>
+  <div class="paper-card"><div class="paper-title">② NIST SP.1270: Identifying and Managing Bias in AI</div><div class="paper-meta">NIST · 2022</div><div class="paper-finding">三类偏差框架 · 测量偏差定义 · 联邦标准</div></div>
+  <div class="paper-card"><div class="paper-title">③ Multi-Agent Debate Improves Factuality and Reasoning</div><div class="paper-meta">Du et al. · 2023</div><div class="paper-finding">多 Agent 辩论 · 准确率显著高于单 Agent · 对抗性角色理论基础</div></div>
+  <div class="paper-card"><div class="paper-title">④ Evaluating AI-Simulated Behavior (Synthetic Users)</div><div class="paper-meta">Nielsen Norman Group · 2025</div><div class="paper-finding">方差压缩 · 普遍赞美 · 方向准确但不可做最终决策</div></div>
+
+  <h2 style="margin-top:20px">12.2 画像系统</h2>
+  <div class="paper-card"><div class="paper-title">⑤ Simulation Agents (Digital Twins)</div><div class="paper-meta">Stanford / Google DeepMind · 2024</div><div class="paper-finding">2h AI 访谈 → <span class="paper-num">85%</span> GSS 准确率 ≈ 真人自洽率</div></div>
+  <div class="paper-card"><div class="paper-title">⑥ Nemotron-Personas</div><div class="paper-meta">NVIDIA · 2025 · CC BY 4.0</div><div class="paper-finding">PGM + Census 驱动 · 5 国 <span class="paper-num">39M+</span> 画像</div></div>
+  <div class="paper-card"><div class="paper-title">⑦ DeepPersona</div><div class="paper-meta">Wang et al. · NeurIPS LAW 2025</div><div class="paper-finding">属性多样性 +<span class="paper-num">32%</span> · 画像唯一性 +<span class="paper-num">44%</span></div></div>
+  <div class="paper-card"><div class="paper-title">⑧ Population-Aligned Persona Generation</div><div class="paper-meta">Microsoft Research · 2025</div><div class="paper-finding">重要性采样 + 最优传输 · 对齐误差↓<span class="paper-num">49.8%</span></div></div>
+
+  <h2 style="margin-top:20px">12.3 收敛性 & 需求工程</h2>
+  <div class="paper-card"><div class="paper-title">⑨ Quantifying the Persona Effect in LLM Simulations</div><div class="paper-meta">Hu et al. · ACL 2024</div><div class="paper-finding">画像效力 <span class="paper-num">&lt;10%</span> · <span class="paper-num">32%</span> 回归系数翻转</div></div>
+  <div class="paper-card"><div class="paper-title">⑩ Silicon Sampling</div><div class="paper-meta">Argyle et al. · Political Analysis · 2023</div><div class="paper-finding">1 LLM ≈ 10-60 真人 · 领域依赖</div></div>
+  <div class="paper-card"><div class="paper-title">⑪ LLMs for Quality Assurance of Software Requirements</div><div class="paper-meta">Lubos et al. · 2024</div><div class="paper-finding">ISO 29148 标准审查可行性验证</div></div>
+  <div class="paper-card"><div class="paper-title">⑫ Lost in Simulation</div><div class="paper-meta">Seshadri et al. · 2026</div><div class="paper-finding">AI 模拟用户不可靠 · 误差方向随难度变化</div></div>
+  <div class="paper-card"><div class="paper-title">⑬ Nature: AI Is Not a Substitute for Human Intelligence</div><div class="paper-meta">Nature Reviews Psychology · 2025</div><div class="paper-finding">模式匹配 ≠ 理解 · 具身认知缺失 · 本质差异</div></div>
+</div>
+
+<!-- ====== VERDICT ====== -->
+<div class="verdict-box">
+  <div class="verdict-title">综合实施方案总结</div>
+  <p style="margin-bottom:10px"><strong>Shift-Left Lab</strong> 是一个基于 Claude AI 全能力栈的研发质量前移平台。三大引擎覆盖 PRD 文本、视觉设计、交互原型全部设计产物；18 项偏差治理方案对抗 AI 模拟的系统性失真；分层画像金字塔在成本和保真度之间取得平衡；输入网关层确保"垃圾进垃圾出"的问题被拦截在引擎之前。</p>
+  <p style="margin-bottom:10px"><strong>核心壁垒：</strong>三引擎统一管线 + 学术研究驱动的偏差治理深度 + 分层画像系统 — 这三重壁垒使 Shift-Left Lab 在 9 家竞品中占据独特定位。</p>
+  <p><strong>交付计划：</strong>4 阶段约 38 周，从 PRD 引擎 MVP 起步，逐步叠加视觉引擎、交互仿真、真人校准，最终交付企业级完整产品。零 GPU、纯 API 架构使硬件成本降低 90%+，团队可专注于产品逻辑和用户价值。</p>
+</div>
+
+</div><!-- container -->
+
+<div class="footer">
+  Shift-Left Lab · 产品实施方案 v2.0 · 2026-03-12<br>
+  基于 9 份竞品报告 · 4 份专题研究 · 18 项偏差治理 · 12 篇画像论文 · 25+ 篇收敛性论文 · 13 篇核心学术依据
+</div>
+
+</body>
+</html>
